@@ -22,6 +22,11 @@ Remember to convert the velocity from km/h to m/s before inserting
 the value in the formula!
 """
 
+# Constants
+g = 9.8
+
 # Functions
 def braking(v0, mu):
+    d = 0.5*v0**2 / (mu*g)
+    return d
     
