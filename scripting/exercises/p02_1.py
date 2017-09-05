@@ -23,10 +23,19 @@ the value in the formula!
 """
 
 # Constants
-g = 9.8
+g = 9.8  # Gravitational constant in m/s^2
 
 # Functions
 def braking(v0, mu):
-    d = 0.5*v0**2 / (mu*g)
+    v0 = (v0*1000)/3600 # Convert km/h to m/s
+    d = 0.5*v0**2 / (mu*g) # Compute distance to braking
+    print('Distance to brake is ', "%.2f" % d, 'm') # Float point to 2 digits
     return d
-    
+
+# Reads a floating point number from keyboard input 
+# and stores it in a variable named “v0”:
+v0 = float(input('v0 [km/h]? '))
+mu = float(input('mu [friction coef]? ')) 
+
+# Execute
+braking(v0, mu)
