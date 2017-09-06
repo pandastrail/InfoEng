@@ -34,17 +34,31 @@ e = 'Invalid input, try again'
 
 # Functions
 def valid(n):
+    '''How many times should the input be asked
+    for the sake of simplification we will limit from 1 to 5 times'''
     i = list(range(1,6)) # Generate a list of integers
     if n not in i:       # Validate that integer is within range
         print(e)
     else:
-        print('good')
-    return n
+        print('Good, let us play ', n, 'times. Type your input!')
+    return
 
-# Input
+def parrot(n):
+    '''Get the input as requested and echo'''
+    play = list(range(1,n+1)) # Create a list to iterate iaw user input
+    store = []  # Prime a list to append the new input from the user
+    for i in play:
+        bla = input('You: ')
+        print('Me: ', bla)
+        store.append(bla)
+    return bla, store
+
+# Input & Execute
 try:                     # Validate if input is an integer
     n = int(input('Hi, how many entries you want to make (from 1 to 5)? '))
     valid(n)
+    parrot(n)
+    print(store)
 except:
     print(e)
 
