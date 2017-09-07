@@ -26,23 +26,13 @@ more Python knowledge than you yourself (currently) have under command.
 # Then gather input n-times, every character is possible (string)
 # Echo each input
 # At the end construct a random phrase with the input
-# And search for it on google, and bring the results page
+# And search for it on google, and bring the results page, or not
 # Then ask if parrot will play again
 
 # Constants
 e = 'Invalid input, try again'
 
 # Functions
-def valid(n):
-    '''How many times should the input be asked
-    for the sake of simplification we will limit from 1 to 5 times'''
-    i = list(range(1,6)) # Generate a list of integers
-    if n not in i:       # Validate that integer is within range
-        print(e)
-    else:
-        print('Good, let us play ', n, 'times. Type your input!')
-    return
-
 def parrot(n):
     '''Get the input as requested and echo'''
     play = list(range(1,n+1)) # Create a list to iterate iaw user input
@@ -51,16 +41,33 @@ def parrot(n):
         bla = input('You: ')
         print('Me: ', bla)
         store.append(bla)
-    return bla, store
+    r = input('\nWanna play again? (y/n) ')
+    if r is 'y':
+        print('Naaa, let us go outside...')
+    else:
+        print('Ciao!')
+    return store
 
-# Input & Execute
-try:                     # Validate if input is an integer
-    n = int(input('Hi, how many entries you want to make (from 1 to 5)? '))
-    valid(n)
-    parrot(n)
-    print(store)
-except:
-    print(e)
+def valid(n):
+    '''How many times should the input be asked
+    for the sake of simplification we will limit from 1 to 5 times
+    Then execute the parrot function accordingly'''
+    i = list(range(1,6)) # Generate a list of integers
+    if n not in i:       # Validate that integer is within range
+        print(e)
+    else:
+        print('Good, let us play ', n, 'times. Type your input!')
+        parrot(n)
+    return
 
+def play():
+    '''Ask for input and execute functions'''
+    n = None
+    try:                     # Validate if input is an integer
+        n = int(input('Hi, how many entries you want to make (from 1 to 5)? '))
+        valid(n)
+    except:
+        print(e)
 
-
+# Execute
+play()
