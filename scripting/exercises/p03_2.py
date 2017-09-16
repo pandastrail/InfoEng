@@ -30,7 +30,7 @@ i = list(range(1,11))       # Generate a list of valid integers
 def secret():
     '''Generate a random number between 1 and 10'''
     s = random.randint(1,10)
-    print('secreto es: ', s)
+    #print('secreto es: ', s)
     return s
 
 def human():
