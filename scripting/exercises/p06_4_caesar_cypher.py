@@ -41,17 +41,21 @@ def shift(msg, key):
     '''Get the unicode value of a string or the string for a value'''
     msg_mod = ''
     for c in msg:
-        ec = chr((ord(c) - ord('a') + key) % 26 + ord('a'))
-        msg_mod += ec
+        if ord(c) not in range(97,123):  # No ecryption for something other than lower case letter
+            ec = c
+            msg_mod += ec
+        else:
+            ec = chr((ord(c) - ord('a') + key) % 26 + ord('a'))
+            msg_mod += ec
     return msg_mod
 
 def encrypt(msg, key):
-    '''Encrypt a message using Caesar cypher'''
+    '''Encrypt a message using Caesar cypher logic'''
     encrypt_msg = shift(msg, 3)
     return encrypt_msg
 
 def decrypt(msg, key):
-    '''Decrypt a message using Caesar cypher'''
+    '''Decrypt a message using Caesar cypher logic'''
     decrypt_msg = shift(msg, -3)
     return decrypt_msg
 
