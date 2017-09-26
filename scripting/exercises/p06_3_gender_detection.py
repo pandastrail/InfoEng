@@ -28,6 +28,8 @@ numerous psychological studies. He also found that women use more verbs and
 hedge phrases (such as “I think” and “I believe”), whereas men tend to use 
 more numbers, nouns, and words per sentence. 
 
+Download books from http://english-e-reader.net/findbook
+
 3.1 Count first-person singular pronouns
 Write a function that counts the number of first-person singular pronouns 
 (I, me, my) in a given text.
