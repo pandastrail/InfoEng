@@ -23,15 +23,17 @@ print(cursor)
 
 # Query
 cursor.execute('''SELECT 
-                       jobTitle, firstName, lastName
+                       *
                   FROM
-                      employees;'''
+                      offices;'''
                 )
 
-queryResult = cursor.fetchall()
-print('queryResult is a ', type(queryResult))
-for jobTitle, firstName, lastName in queryResult: 
-    print (jobTitle, firstName, lastName)
+q = cursor.fetchall()
+print('queryResult is a ', type(q), 'with length', len(q))
+#print(q)
+
+for i in q:
+    print(i[1])
 
 
             
