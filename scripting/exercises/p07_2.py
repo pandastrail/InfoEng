@@ -17,14 +17,16 @@ emails and URLs
 addresses and URLs
 - Test your code on email-footer.txt
 
-Hint:look up re.findall()
+Hint:look up re.findall() <it creates a list with all occurrences>
 See also https://docs.python.org/2/library/re.html#match-objects
 """
 ''' MODULES '''
 import re
+import sys
 
 ''' ASSIGNMENTS '''
-filename = r'/home/hase/Documents/ZHAW/InfoEng/Lectures/Scripting/code/v07_email-footer.txt'
+#filename = r'/home/hase/Documents/ZHAW/InfoEng/Lectures/Scripting/code/v07_email-footer.txt'
+filename = r'C:\ZHAW\lectures\scripting\code\v07_email-footer.txt'
 
 ''' FUNCTIONS '''
 def read_file(filename):
@@ -33,7 +35,7 @@ def read_file(filename):
       f = open(filename, 'r')
     except IOError as detail:
       print("Cannot open file "+filename, detail)
-      exit()
+      sys.exit()
     else:
       with f:  # This is the same as with open(filename, 'r') as f:
         text = f.read()
@@ -51,8 +53,28 @@ def phone(text):
 
 def email(text):
     ''' Find email addresses '''
-    #FIXME email_match = re.search(r'[\w.-]+@[\w.-]+', text)
-    pass
+    #email = re.search(r'[\w.-]+@[\w.-]+', text)  # Find first email address
+    emails = re.findall(r'[\w.-]+@[\w.-]+', text)
+    # Square-brackets matches a set of characters
+    # The "+" is a repetition to the left
+    # The "-" and "." are taken literally
+    if emails:
+        return True, emails
+    else:
+        return False
+
+def urls(text):
+    ''' Find urls and web addresses '''
+    urls = re.findall(r'htt\w+://www.[\w./~-]+', text) # With <http> or <https>
+    urls.append(re.findall(r'\swww.[\w.-/~]+', text))  # With <www>
+    # FIXME The one below tries to catch <home.zhaw.ch/~stdm> but is not
+    # entirely correct
+    #urls.append(re.findall(r'[\w]+[.-][\w]+[.-][\w]+[/]?[~]?[\w]+', text))  # Without <www>
+    if urls:
+        return True, urls
+        #TODO Test the url with urlib or web requests?
+    else:
+        return False
 
 
 ''' EXECUTE '''
@@ -62,3 +84,9 @@ print(text)
 # Find phone numbers
 print('Phones found:')
 print(phone(text))
+# Find email addresses
+print('Emails found:')
+print(email(text))
+# Find urls
+print('URLs found:')
+print(urls(text))
