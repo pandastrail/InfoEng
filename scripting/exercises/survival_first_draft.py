@@ -11,10 +11,15 @@ First try, basic functions, understanding the problem
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 ''' ASSIGNMENTS '''
-# Working .csv file
-path = r'C:\ZHAW\lectures\scripting\data\titanic3_train.csv'
+# Working .csv files iaw os
+if os.name == 'posix':
+    test = r'/home/hase/Documents/ZHAW/InfoEng/Lectures/Scripting/data/titanic3_test.csv'
+    train = r'/home/hase/Documents/ZHAW/InfoEng/Lectures/Scripting/data/titanic3_train.csv'
+elif os.name == 'windows':
+    train = r'C:\ZHAW\lectures\scripting\data\titanic3_train.csv'
 # initialize a list to store the content of the .csv file
 data = []
 
@@ -48,37 +53,60 @@ def makeArray(aList):
     #print(anArray)
     return anArray
 
-''' EXECUTE '''
-# Read .csv file
-data = read(path)
-# Create array
-data = makeArray(data)
-# Check array
-#print('\n', data)
-# Count the number of passengers
-passID = data[:,0]
-numPassengers = np.size(passID)
-# How many passengers survived
-survived = data[:,2].astype(np.float)
-numSurvived = np.sum(survived)
-survivalQuota = numSurvived*100 / numPassengers
-# Hoy many males and females are and survival quota
-males = data[:,5] == 'male'
-females = data[:,5] == 'female'
-numMales = np.size(data[males,5])
-numMalesSurvived = np.sum(data[males,2].astype(np.float))
-numFemales = np.size(data[females,5])
-numFemalesSurvived = np.sum(data[females,2].astype(np.float))
-survivalMalesQuota = numMalesSurvived*100 / numMales
-survivalFemalesQuota = numFemalesSurvived*100 / numFemales
-# OUTPUT
-print('\nBasic calculations:')
-print('Passengers:', numPassengers)
-print(numMales, 'males,', numFemales, 'females')
-print('Survived:', int(numSurvived), '(', "%.2f" %survivalQuota, '%)') 
-print(int(numMalesSurvived), 'males',
+def describe(path):
+    ''' Run basic parsing and calculations to get a basic
+    description of the data. It assumes that there is a <survived> column. '''
+    # CALCULATE
+    data = read(path)                           # Read .csv file
+    data = makeArray(data)                      # Create array
+    passID = data[:,0]                          # Get passengers
+    numPassengers = np.size(passID)             # Count passengers
+    survived = data[:,2].astype(np.int)         # Get survived data
+    numSurvived = np.sum(survived)              # Count survived 1s and 0s
+    survivalQuota = numSurvived*100 / numPassengers
+    genre = data[:,5]                           # Get genre data
+    males = data[:,5] == 'male'                 # males True
+    females = data[:,5] == 'female'             # females True
+    numMales = np.size(data[males,5])           # Count males
+    numMalesSurvived = np.sum(data[males,2].astype(np.float))  # Mask in survived
+    numFemales = np.size(data[females,5])
+    numFemalesSurvived = np.sum(data[females,2].astype(np.float))
+    survivalMalesQuota = numMalesSurvived*100 / numMales
+    survivalFemalesQuota = numFemalesSurvived*100 / numFemales
+    #TODO Survival histogram by age
+    
+    # PRINT
+    print('\nBasic calculations:')
+    print('Passengers:', numPassengers)
+    print(numMales, 'males,', numFemales, 'females')
+    print('Survived:', numSurvived, '(', "%.2f" %survivalQuota, '%)') 
+    print(int(numMalesSurvived), 'males',
       '(', "%.2f" %survivalMalesQuota, '%),',
       int(numFemalesSurvived), 'females',
-      '(', "%.2f" %survivalFemalesQuota, '%)'
-      )
-
+      '(', "%.2f" %survivalFemalesQuota, '%)')
+    
+    # PLOT
+    fig = plt.figure(figsize=(15,4))
+    fig.suptitle('Data Description', fontsize=14, fontweight='bold')
+    
+    # Pie chart
+    ax = fig.add_subplot(1,3,1)
+    plt.pie([numPassengers - numSurvived, numSurvived],
+            labels=['Not Survived', 'Survived'],
+            autopct='%1.1f%%', #display percentages
+            colors=plt.rcParams['axes.prop_cycle'].by_key()['color']) 
+    ax.set_title('Survival Quota')
+    
+    ax = fig.add_subplot(1,3,2, facecolor='y')
+    plt.pie([numMalesSurvived, numFemalesSurvived],
+            labels=['Males', 'Females'],
+            autopct='%1.1f%%') #display percentages
+            #colors=plt.rcParams['axes.prop_cycle'].by_key()['color']) 
+    ax.set_title('Survival Quota by Genre')
+    # Show Figure
+    plt.show()
+    
+''' EXECUTE '''
+describe(train)
+#TODO for test csv file submit key;value for probability by genre
+#TODO make function to submit and retrieve score within this script
