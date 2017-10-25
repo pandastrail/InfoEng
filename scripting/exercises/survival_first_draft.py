@@ -8,20 +8,25 @@ Survival Probability
 First try, basic functions, understanding the problem
 """
 ''' MODULES '''
+import os
+import time
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
-import os
 
 ''' ASSIGNMENTS '''
 # Working .csv files iaw os
 if os.name == 'posix':
     test = r'/home/hase/Documents/ZHAW/InfoEng/Lectures/Scripting/data/titanic3_test.csv'
     train = r'/home/hase/Documents/ZHAW/InfoEng/Lectures/Scripting/data/titanic3_train.csv'
-elif os.name == 'windows':
+elif os.name == 'nt':
     train = r'C:\ZHAW\lectures\scripting\data\titanic3_train.csv'
+    test = r'C:\ZHAW\lectures\scripting\data\titanic3_test.csv'
+    deliver = r'C:\ZHAW\lectures\scripting\data\submit\titanic_deliver_'
 # initialize a list to store the content of the .csv file
 data = []
+# Place to submit the predictions
+urlsubmit = 'https://openwhisk.ng.bluemix.net/api/v1/web/ZHAW%20ISPROT_ISPROT17/default/titanic.html' 
 
 ''' FUNCTIONS '''
 def read(path):
@@ -55,13 +60,17 @@ def makeArray(aList):
 
 def describe(path):
     ''' Run basic parsing and calculations to get a basic
-    description of the data. It assumes that there is a <survived> column. '''
-    # CALCULATE
+    description of the data. 
+    It assumes that there is a <survived> column '''
+    # Get data
     data = read(path)                           # Read .csv file
     data = makeArray(data)                      # Create array
+    
+    # CALCULATE
     passID = data[:,0]                          # Get passengers
     numPassengers = np.size(passID)             # Count passengers
     survived = data[:,2].astype(np.int)         # Get survived data
+    maskSurvived = data[:,2] == '1'
     numSurvived = np.sum(survived)              # Count survived 1s and 0s
     survivalQuota = numSurvived*100 / numPassengers
     genre = data[:,5]                           # Get genre data
@@ -73,7 +82,12 @@ def describe(path):
     numFemalesSurvived = np.sum(data[females,2].astype(np.float))
     survivalMalesQuota = numMalesSurvived*100 / numMales
     survivalFemalesQuota = numFemalesSurvived*100 / numFemales
-    #TODO Survival histogram by age
+    ages = data[:,6] != ''                      # Mask ages, exclude blanks
+    numAges = np.size(data[ages,6])             # Count records with age data
+    Ages = data[ages,6].astype(np.float)
+    numAgesSurvived = np.sum(data[ages,2].astype(np.float))
+    maskAgesSurvived = data[ages,2] == '1'
+    agesSurvived = Ages[maskAgesSurvived]
     
     # PRINT
     print('\nBasic calculations:')
@@ -84,29 +98,70 @@ def describe(path):
       '(', "%.2f" %survivalMalesQuota, '%),',
       int(numFemalesSurvived), 'females',
       '(', "%.2f" %survivalFemalesQuota, '%)')
+    print(numAges, 'records have an age data')
     
     # PLOT
     fig = plt.figure(figsize=(15,4))
     fig.suptitle('Data Description', fontsize=14, fontweight='bold')
     
-    # Pie chart
-    ax = fig.add_subplot(1,3,1)
+    # Pie chart Survival Quota
+    ax = fig.add_subplot(2,2,1)
     plt.pie([numPassengers - numSurvived, numSurvived],
             labels=['Not Survived', 'Survived'],
             autopct='%1.1f%%', #display percentages
             colors=plt.rcParams['axes.prop_cycle'].by_key()['color']) 
-    ax.set_title('Survival Quota')
+    ax.set_title('Survival Quota for all Passengers')
     
-    ax = fig.add_subplot(1,3,2, facecolor='y')
+    # Pie chart Survival Quota by Genre
+    ax = fig.add_subplot(2,2,2)
     plt.pie([numMalesSurvived, numFemalesSurvived],
             labels=['Males', 'Females'],
             autopct='%1.1f%%') #display percentages
-            #colors=plt.rcParams['axes.prop_cycle'].by_key()['color']) 
     ax.set_title('Survival Quota by Genre')
+    
+    # Histogram Age Dsitribution
+    ax = fig.add_subplot(2,2,3)
+    plt.hist(Ages, bins=80)
+    ax.set_title('Age Distribution')
+    
+    # Histogram Survival Quota by Age
+    ax = fig.add_subplot(2,2,4)
+    plt.hist(agesSurvived, bins=80)
+    ax.set_title('Survival Quota by Age')
+    
     # Show Figure
     plt.show()
+
+def predict(path, output):
+    ''' Using the test file provided, create a ke;value .csv file
+    with a prediction who will survive.
+    It assumes that there is NO <survived> column '''
+    data = read(path)                           # Read .csv file
+    data = makeArray(data)                      # Create array
+    count = 0
+    output = output + time.strftime('%Y%m%d%H%M%S') + '.csv'
+    
+    # ID-1 Survival Probaility based on gender
+    with open(output, 'w') as f:
+        csv_out = csv.writer(f, delimiter=';')
+        csv_out.writerow(['key', 'value'])
+        for row in data:
+            if row[4] == 'female':
+                csv_out.writerow([row[0], '1'])
+                count += 1
+            elif row[4] == 'male':
+                csv_out.writerow([row[0], '0'])
+                count += 1
+        print(output, 'created with', count, 'entries')
+    # From here prediction can be submitted
+
+def submit(url):
+    ''' Submit the key;value csv file to the corresponding leaderboard
+    Asjust the name and id entered and retrieve the leaderboard status. '''
+    pass
+        
     
 ''' EXECUTE '''
-describe(train)
-#TODO for test csv file submit key;value for probability by genre
-#TODO make function to submit and retrieve score within this script
+#describe(train)
+predict(test, deliver)
+
