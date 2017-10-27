@@ -13,20 +13,23 @@ import time
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
+from selenium import webdriver
 
 ''' ASSIGNMENTS '''
 # Working .csv files iaw os
 if os.name == 'posix':
     test = r'/home/hase/Documents/ZHAW/InfoEng/Lectures/Scripting/data/titanic3_test.csv'
     train = r'/home/hase/Documents/ZHAW/InfoEng/Lectures/Scripting/data/titanic3_train.csv'
+    deliver = r'/home/hase/Documents/ZHAW/InfoEng/Lectures/Scripting/data/submit/titanic_deliver_'
 elif os.name == 'nt':
     train = r'C:\ZHAW\lectures\scripting\data\titanic3_train.csv'
     test = r'C:\ZHAW\lectures\scripting\data\titanic3_test.csv'
     deliver = r'C:\ZHAW\lectures\scripting\data\submit\titanic_deliver_'
 # initialize a list to store the content of the .csv file
 data = []
+
 # Place to submit the predictions
-urlsubmit = 'https://openwhisk.ng.bluemix.net/api/v1/web/ZHAW%20ISPROT_ISPROT17/default/titanic.html' 
+url_submit = 'https://openwhisk.ng.bluemix.net/api/v1/web/ZHAW%20ISPROT_ISPROT17/default/titanic.html' 
 
 ''' FUNCTIONS '''
 def read(path):
@@ -145,23 +148,53 @@ def predict(path, output):
     with open(output, 'w') as f:
         csv_out = csv.writer(f, delimiter=';')
         csv_out.writerow(['key', 'value'])
+        # initialize a list to subtmit the results to leaderboard
+        leader = ''
+        leader += 'key' + ';value\n'
         for row in data:
             if row[4] == 'female':
                 csv_out.writerow([row[0], '1'])
+                leader += row[0] + ';1\n'
                 count += 1
             elif row[4] == 'male':
                 csv_out.writerow([row[0], '0'])
+                leader += row[0] + ';0\n'
                 count += 1
         print(output, 'created with', count, 'entries')
-    # From here prediction can be submitted
+    #print(leader)
+    #print(type(leader))
+    
+    ask = input('Submit test results to leaderboard? [y/n] ')
+    if ask == 'y':
+        submit(url_submit, leader)
+    else:
+        print('Ok, bye')
 
-def submit(url):
+def submit(url, long_str):
     ''' Submit the key;value csv file to the corresponding leaderboard
     Asjust the name and id entered and retrieve the leaderboard status. '''
-    pass
-        
     
+    driver = webdriver.Chrome()
+    driver.get(url)
+    
+    # Define name + id to submit
+    head = 'team_nr_' + time.strftime('%Y%m%d%H%M%S')
+    # Find text box to write name + id to submit
+    name_id = driver.find_element_by_name('submission') 
+    name_id.send_keys(head)
+    
+    # Find text box to paste csv key;value
+    paste_csv = driver.find_element_by_name('csv') 
+    paste_csv.clear()  # Clear to be able to write from list
+    # Paste key;value, needs to be a string and not a list
+    paste_csv.send_keys(long_str)
+    # Submit button
+    submit_btn = driver.find_element_by_xpath('/html/body/form/input[2]')
+    submit_btn.submit()
+    
+    # it appears that if there are print statements here 
+    # then the chrome application is closed
+
 ''' EXECUTE '''
 #describe(train)
 predict(test, deliver)
-
