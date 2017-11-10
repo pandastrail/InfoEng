@@ -27,12 +27,22 @@ csv_files = ['Categories.csv',
              'Employees.csv']
 
 ''' DATAFRAMES '''
-dfca = pd.read_csv((work_folder + csv_files[0]), sep=';', index_col='CategoryID', encoding='utf-8')
-dfcu = pd.read_csv((work_folder + csv_files[1]), sep=';', index_col='CustomerID', encoding='utf-8')
-dfpr = pd.read_csv((work_folder + csv_files[2]), sep=';', index_col='ProductID', encoding='utf-8')
-dfor = pd.read_csv((work_folder + csv_files[3]), sep=';', index_col='OrderID', encoding='latin-1')  # encoding 'utf-8' did not worked!
-dfod = pd.read_csv((work_folder + csv_files[4]), sep=';', index_col='OrderID', encoding='utf-8')
-dfem = pd.read_csv((work_folder + csv_files[5]), sep=';', index_col='EmployeeID', encoding='utf-8')
+# No index_col to retrieve all columns
+# Import with dtype 'str' as needed to get unique values; i.e. all primary keys or ID's
+# Remove columns as needed, for example, Photo on 'Employees'
+dfca = pd.read_csv((work_folder + csv_files[0]), sep=';',  encoding='utf-8',
+                    dtype={'CategoryID':'str'})
+dfcu = pd.read_csv((work_folder + csv_files[1]), sep=';', encoding='utf-8',
+                    dtype={'CustomerID':'str'})
+dfpr = pd.read_csv((work_folder + csv_files[2]), sep=';', encoding='utf-8',
+                    dtype={'ProductID':'str', 'SupplierID':'str', 'CategoryID':'str'})
+dfor = pd.read_csv((work_folder + csv_files[3]), sep=';', encoding='latin-1',
+                    dtype={'OrderID':'str', 'EmployeeID':'str'})  # encoding 'utf-8' did not worked!
+dfod = pd.read_csv((work_folder + csv_files[4]), sep=';', encoding='utf-8',
+                    dtype={'OrderID':'str', 'ProductID':'str'})
+dfem = pd.read_csv((work_folder + csv_files[5]), sep=';', encoding='utf-8',
+                    usecols=[0,1,2,3,4,5,6,7,8,9,10,11,12,13],
+                    dtype={'EmployeeID':'str'})
 
 ''' FUNCTIONS '''
 def describeDF(df, table_name):
@@ -82,10 +92,13 @@ def describeDF(df, table_name):
 
 
 ''' EXECUTE '''
+
+
 describeDF(dfca, table_name='Categories')
 describeDF(dfcu, table_name='Customers')
 describeDF(dfpr, table_name='Products')
 describeDF(dfor, table_name='Orders')
 describeDF(dfod, table_name='OrderDetails')
 describeDF(dfem, table_name='Employees')
+
 
